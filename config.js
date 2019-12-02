@@ -154,8 +154,10 @@ function game() {
     };
 
     this.saveScore = function(value){
+        var dateNow = new Date();
+        var expires = new Date(dateNow.getTime() + 7*24*60*60*1000);
         if(value > this.getScore())
-            document.cookie = "scoreGame="+value;
+            document.cookie = "scoreGame="+value+";expires="+expires.toUTCString();
     }
 
     this.changeLevel = function(maxHeight, aX, y, secondsAnimation){
