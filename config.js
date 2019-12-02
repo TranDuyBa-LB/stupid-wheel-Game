@@ -61,12 +61,14 @@ function wheel(){
         }, 8);
     };
 
-    this.action = function(){
+    this.actionWheel = function(){
         this.createObj();
         window.onclick = this.actionUp.bind(this);
         window.onkeydown = (event)=>{
-          if(event.key == " ")
+          if(event.keyCode == 32) {
+            console.log(event.keyCode);
             this.actionUp();
+          }
         };
     }
 }
@@ -196,10 +198,11 @@ function game() {
         var play = document.querySelector(".view-game .wellcome input");
         wellcome.style.transform = "scale(1,1)";
         play.onclick = ()=>{
+            play.style.display = "none";
             wellcome.style.transition = "0.5s";
             wellcome.style.transform = "scale(0.001,0.001)";
             this.objwheel = new wheel();
-            this.objwheel.action();
+            this.objwheel.actionWheel();
 
             for(var i = 0; i < 2; i++){
                 this.arrayobjHinder[i] = new hinder();
