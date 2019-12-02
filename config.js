@@ -64,6 +64,10 @@ function wheel(){
     this.action = function(){
         this.createObj();
         window.onclick = this.actionUp.bind(this);
+        window.onkeydown = (event)=>{
+          if(event.key == " ")
+            this.actionUp();
+        };
     }
 }
 function hinder() {
