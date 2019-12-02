@@ -129,20 +129,27 @@ function game() {
     this.arrayobjHinder = [];
     
     this.getScore = function(){
-        if(typeof(Storage) !== undefined){
-            var score = localStorage.getItem("scoreGame");
-            if(score != undefined)
-                return Number(score);
-            else
+        if(navigator.cookieEnabled == true ){
+            var cookie = document.cookie;
+            if(cookie != ""){
+                cookie = document.cookie.split(";");
+                for(var i = 0; i < cookie.length; i++){
+                    if(cookie[i].indexOf("scoreGame") != -1) {
+                        var score = cookie[i].split("=");
+                        return score[1];
+                    }
+                }
+            } else
                 return 0;
         } else {
-            alert("Máy bạn không hỗ trợ để lưu điểm !");
+            alert("Hãy bật cookie lên để lưu điểm nhé !");
+            return 0;
         }
     };
 
     this.saveScore = function(value){
         if(value > this.getScore())
-            localStorage.setItem("scoreGame", value);
+            document.cookie = "scoreGame="+value;
     }
 
     this.changeLevel = function(maxHeight, aX, y, secondsAnimation){
@@ -211,10 +218,10 @@ function game() {
     }
 
     this.gameOver = function(){
-        this.saveScore(valueScoreNow);
         this.objwheel.wheel.src = "wheelError.png";
         document.querySelector(".view-game .game-over p:nth-child(1)").innerHTML = "Điểm: " + valueScoreNow;
         document.querySelector(".view-game .game-over p:nth-child(2)").innerHTML = "Điểm cao nhất: " + this.getScore();
+        this.saveScore(valueScoreNow);
         this.arrayobjHinder.forEach((value)=>{
             clearInterval(value.intervalAction);
         });
@@ -230,4 +237,6 @@ function game() {
 
 var newGame = new game();
 newGame.playGame();
+
+
 
