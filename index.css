@@ -73,7 +73,7 @@
 .view-game .wellcome input:hover {
     background-color: rgba(255, 94, 94, 0.856)
 }
-.view-game .wellcome .setting {
+/* .view-game .wellcome .setting {
     position: absolute;
     top: 5px;
     right: 5px;
@@ -105,7 +105,7 @@
 }
 .view-game .wellcome .setting > li:hover > ul {
     left: 0px;
-}
+} */
 .view-game .game-over {
     width: 50%;
     height: 50%;

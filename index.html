@@ -4,15 +4,19 @@
         <meta charset="UTF-8" />
         <title>Game</title>
         <link rel="stylesheet" type="text/css" href="index.css" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
     </head>
     <body>
+        <script>
+            document.getElementById("audio").play();
+        </script>
         <div class="view-game">
             <p class="score scoreNow">0</p>
             <p class="score scoreMax">0</p>
             <div class="wellcome">
                 <p>Chơi thôi nào !</p>
                 <input type="button" value="Chơi" />
-                <ul class="setting">
+                <!-- <ul class="setting">
                     <li>
                         <img src="setting.png" />
                         <ul>
@@ -24,7 +28,7 @@
                             </li>
                         </ul>
                     </li>
-                </ul>
+                </ul> -->
             </div>
             <div class="game-over">
                 <p>0</p>

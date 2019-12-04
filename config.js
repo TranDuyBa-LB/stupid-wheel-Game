@@ -23,8 +23,10 @@ function wheel(){
     this.intervalDown ;
     this.src = "wheel.png";
     this.y = 110;
+    this.aX = 4.5;
+    this.audioUp = true;
 
-    this.createObj = function(){
+    this.createWheel = function(){
         this.wheel = document.createElement("img");
         this.wheel.style.width = this.width + "px";
         this.wheel.style.height = this.height + "px";
@@ -37,40 +39,49 @@ function wheel(){
     };
 
     this.actionUp = function(){
+        if(this.audioUp == true){
+            var audio = new Audio('actionUp-mp3.mp3');
+            audio.play();
+        }
         if(this.bottom == 0) {
-            this.intervalUp = setInterval(()=>{
+            var animationUp;
+            var changePositionUp = ()=>{
                 if(this.bottom < this.y){
-                    this.bottom += 2.5;
+                    this.bottom += this.aX;
                     this.wheel.style.bottom = this.bottom + "px";
+                    animationUp = window.requestAnimationFrame(changePositionUp);
                 } else {
-                    clearInterval(this.intervalUp);
+                    cancelAnimationFrame(animationUp);
                     this.actionDown();
                 }
-            }, 8);
+            };
+            changePositionUp();
         }
     };
 
     this.actionDown = function(){
-        this.intervalDown = setInterval(()=>{
+        var animationDown;
+        var changePositionDown = ()=>{
             if(this.bottom > 0){
-                this.bottom -= 2.5;
+                this.bottom -= this.aX;
                 this.wheel.style.bottom = this.bottom + "px";
+                animationDown = window.requestAnimationFrame(changePositionDown);
             } else {
-                clearInterval(this.intervalDown);
+               cancelAnimationFrame(animationDown);
             }
-        }, 8);
+        };
+        changePositionDown();
     };
 
     this.actionWheel = function(){
-        this.createObj();
+        this.createWheel();
         window.onclick = this.actionUp.bind(this);
         window.onkeydown = (event)=>{
-          if(event.keyCode == 32) {
-            console.log(event.keyCode);
+          if(event.key == " ") {
             this.actionUp();
           }
         };
-    }
+    };
 }
 function hinder() {
     this.hinder;
@@ -80,52 +91,66 @@ function hinder() {
     this.bottom;
     this.left;
     this.backgroundColor = "blue";
-    this.aX = 1.5; // Gia tốc vật cản
+    this.aX = 4.5; // Gia tốc vật cản
     this.maxHeight = 3; // Chiều cao của vật cản
     this.numberXxX = 1/3; // Hệ số khoảng cách giữa các vật cản ( mẫu số == số lượng vật cản)
-    this.intervalAction;
+    this.animationRun;
     this.src = "dinh.png";
 
     this.createHinder = function(){
-        var that = this;
-        function create(){
-            hinderLast = that;
-            that.left = widthViewGame;
-            that.bottom = 0;
-            that.height = Math.ceil(Math.random()*that.maxHeight + 2) * 10;
-            that.hinder = document.createElement("img");
-            that.hinder.src = that.src;
-            that.hinder.style.width = that.width + "px";
-            that.hinder.style.height = that.height + "px";
-            that.hinder.style.position = that.position;
-            that.hinder.style.left = that.left + "px";
-            that.hinder.style.bottom = that.bottom + "px";
-            viewGame.appendChild(that.hinder);
-            that.actionHinder();
-        }
+        var create = ()=>{
+            hinderLast = this;
+            this.left = widthViewGame;
+            this.bottom = 0;
+            this.height = Math.ceil(Math.random()*this.maxHeight + 2) * 10;
+            this.hinder = document.createElement("img");
+            this.hinder.src = this.src;
+            this.hinder.style.width = this.width + "px";
+            this.hinder.style.height = this.height + "px";
+            this.hinder.style.position = this.position;
+            this.hinder.style.left = this.left + "px";
+            this.hinder.style.bottom = this.bottom + "px";
+            viewGame.appendChild(this.hinder);
+            this.actionHinder();
+        };
         if(hinderLast != undefined){
-            var interval = setInterval(function(){
-                if(hinderLast.left < widthViewGame*that.numberXxX) {
+            var interval = setInterval(()=>{
+                if(hinderLast.left < widthViewGame*this.numberXxX) {
                     create();
                     clearInterval(interval);
                 }
-            }, 5);
+            }, 17);
         } else {
             create();
         }
     };
 
     this.actionHinder = function(){
-        this.intervalAction = setInterval(()=>{
+        var changePosition = ()=>{
             if(this.left > -this.width){
                 this.left -= this.aX;
                 this.hinder.style.left = this.left + "px";
+                this.animationRun = window.requestAnimationFrame(changePosition);
             } else {
-                clearInterval(this.intervalAction);
+                cancelAnimationFrame(this.animationRun);
                 viewGame.removeChild(this.hinder);
                 this.createHinder();
             }
-        }, 5);
+        };
+        changePosition();
+    }
+    this.actionHinderDown = function(){
+        var changeDown;
+        var changePositionDown = ()=>{
+            if(this.bottom > -this.height){
+                this.bottom -= 1;
+                this.hinder.style.bottom = this.bottom + "px";
+                changeDown = window.requestAnimationFrame(changePositionDown);
+            } else {
+                cancelAnimationFrame(changeDown);
+            }
+        };
+        changePositionDown();
     }
 }
 
@@ -133,6 +158,7 @@ function game() {
     this.intervalCheckScore;
     this.objwheel;
     this.arrayobjHinder = [];
+    this.checkWow = 0;
     
     this.getScore = function(){
         if(navigator.cookieEnabled == true ){
@@ -158,41 +184,91 @@ function game() {
         var expires = new Date(dateNow.getTime() + 7*24*60*60*1000);
         if(value > this.getScore())
             document.cookie = "scoreGame="+value+";expires="+expires.toUTCString();
-    }
+    };
 
-    this.changeLevel = function(maxHeight, aX, y, secondsAnimation){
-        this.arrayobjHinder.forEach((value)=>{
-                value.maxHeight = maxHeight;
-                value.aX = aX;
-                this.objwheel.y = y;
-                this.objwheel.wheel.style.animation = "rotateWheel "+ secondsAnimation +"s linear infinite";
-            });
-    }
-    this.updateLevel = function(){
-        switch(valueScoreNow){
-            case 150:
-                this.changeLevel(4, 1.7, 112, 0.8);
-            break;
-            case 250:
-                this.changeLevel(5, 2, 114, 0.6);
-            break;
-            case 350:
-                this.changeLevel(6, 2.3, 120, 0.4);
-            break;
-            case 450:
-                this.changeLevel(7, 2.6, 130, 0.2);
-            break;
-            case 550:
-                this.changeLevel(8, 2.9, 135, 0.1);
-            break;
-        }
-    }
     this.checkScore = function(){
         scoreMax.innerHTML = "Điểm cao nhất: " + this.getScore();
         this.intervalCheckScore = setInterval(()=>{
             valueScoreNow += 1;
             scoreNow.innerHTML = "Điểm: " + valueScoreNow;
         }, 100);
+    };
+    
+    this.animationWow = function(){
+        var wow = document.createElement("img");
+        var width = 300;
+        var height = 100;
+        var createWow = function(){
+            wow.src = "levelup.png";
+            wow.style.position = "absolute";
+            wow.style.width = width + "px";
+            wow.style.height = height + "px";
+            wow.style.left = "25%";
+            wow.style.bottom = -height + "px";
+            wow.style.transition = "1s";
+            wow.style.opacity = "0";
+            viewGame.appendChild(wow);
+        };
+        action = function(){
+            createWow();
+            setTimeout(function(){
+                wow.style.bottom = "150px";
+                wow.style.opacity = "1";
+            },50);
+            setTimeout(function(){
+                wow.style.transition = "0.5s";
+                wow.style.opacity = "0";
+                wow.style.bottom = "100%";
+                setTimeout(function(){
+                    viewGame.removeChild(wow);
+                }, 1000);
+            }, 1100);
+        };
+        action();
+    };
+
+    this.changeLevel = function(maxHeight, aX, y, secondsAnimation){
+        if(this.checkWow == 0){
+            var audio = new Audio("levelUp-Mp3.mp3");
+            audio.play();
+            ++this.checkWow;
+            this.animationWow();
+            setTimeout(()=>{
+                this.checkWow = 0;
+            }, 1000);
+        }
+        this.arrayobjHinder.forEach((value)=>{
+            value.actionHinderDown();
+        });
+        this.arrayobjHinder.forEach((value)=>{
+            value.maxHeight = maxHeight;
+            value.aX = aX;
+        });
+        this.objwheel.y = y;
+        this.objwheel.wheel.style.animation = "rotateWheel "+ secondsAnimation +"s linear infinite";
+    };
+
+    this.updateLevel = function(){
+        switch(valueScoreNow){
+            case 150:
+                this.changeLevel(4, 5, 112, 0.8);
+            break;
+            case 250:
+                this.changeLevel(5, 5.5, 114, 0.6);
+            break;
+            case 400:
+                this.changeLevel(6, 6.5, 120, 0.4);
+            break;
+            case 650:
+                this.changeLevel(7, 7.5, 130, 0.2);
+            break;
+            case 950:
+                this.changeLevel(8, 8.5, 135, 0.1);
+            break;
+            case 1300:
+                this.changeLevel(8, 10.5, 135, 0.1);
+            break;
+        }
     }
 
     this.playGame = function(){
@@ -205,7 +281,6 @@ function game() {
             wellcome.style.transform = "scale(0.001,0.001)";
             this.objwheel = new wheel();
             this.objwheel.actionWheel();
-
             for(var i = 0; i < 2; i++){
                 this.arrayobjHinder[i] = new hinder();
                 this.arrayobjHinder[i].createHinder();
@@ -213,26 +288,28 @@ function game() {
 
             var intervalCheckGameOver = setInterval(()=>{
                 for(i=0; i < this.arrayobjHinder.length; i++){
-                    if(this.objwheel.bottom >= 0 && this.objwheel.bottom <= (this.arrayobjHinder[i].height)){
+                    if(this.objwheel.bottom >= 0 && this.objwheel.bottom <= (this.arrayobjHinder[i].height) && this.arrayobjHinder[i].bottom >= 0){
                         if(this.objwheel.left >= this.arrayobjHinder[i].left && this.objwheel.left <= (this.arrayobjHinder[i].left + this.arrayobjHinder[i].width) || (this.objwheel.left + this.objwheel.width)>=this.arrayobjHinder[i].left && (this.objwheel.left + this.objwheel.width) <= (this.arrayobjHinder[i].left + this.arrayobjHinder[i].width)){
                             clearInterval(intervalCheckGameOver);   
                             this.gameOver();
                         }
                     }
-                    this.updateLevel();  
+                    this.updateLevel();
                 }
-            },10);
+            },17);
             this.checkScore();
         }
     }
 
     this.gameOver = function(){
+        var audio = new Audio("gameOver-Mp3.mp3");
+        audio.play();
         this.objwheel.wheel.src = "wheelError.png";
         document.querySelector(".view-game .game-over p:nth-child(1)").innerHTML = "Điểm: " + valueScoreNow;
         document.querySelector(".view-game .game-over p:nth-child(2)").innerHTML = "Điểm cao nhất: " + this.getScore();
         this.saveScore(valueScoreNow);
         this.arrayobjHinder.forEach((value)=>{
-            clearInterval(value.intervalAction);
+            cancelAnimationFrame(value.animationRun);
         });
         clearInterval(this.intervalCheckScore);
         this.objwheel.wheel.style.animation = "none";
