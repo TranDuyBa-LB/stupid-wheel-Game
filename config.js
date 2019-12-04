@@ -40,7 +40,7 @@ function wheel(){
 
     this.actionUp = function(){
         if(this.audioUp == true){
-            var audio = new Audio('actionUp-mp3.mp3');
+            var audio = new Audio('actionUp-Mp3.mp3');
             audio.play();
         }
         if(this.bottom == 0) {
