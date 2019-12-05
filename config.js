@@ -40,7 +40,7 @@ function wheel(){
 
     this.actionUp = function(){
         if(this.audioUp == true){
-            var audio = new Audio('actionUp-mp3.mp3');
+            var audio = new Audio('actionUp-Mp3.mp3');
             audio.play();
         }
         if(this.bottom == 0) {
@@ -154,12 +154,8 @@ function hinder() {
     }
 }
 
-function game() {
+function score(){
     this.intervalCheckScore;
-    this.objwheel;
-    this.arrayobjHinder = [];
-    this.checkWow = 0;
-    
     this.getScore = function(){
         if(navigator.cookieEnabled == true ){
             var cookie = document.cookie;
@@ -193,48 +189,51 @@ function game() {
             scoreNow.innerHTML = "Điểm: " + valueScoreNow;
         }, 100);
     };
-    
-    this.animationWow = function(){
-        var wow = document.createElement("img");
-        var width = 300;
-        var height = 100;
-        var createWow = function(){
-            wow.src = "levelup.png";
-            wow.style.position = "absolute";
-            wow.style.width = width + "px";
-            wow.style.height = height + "px";
-            wow.style.left = "25%";
-            wow.style.bottom = -height + "px";
-            wow.style.transition = "1s";
-            wow.style.opacity = "0";
-            viewGame.appendChild(wow);
-        };
-        action = function(){
-            createWow();
-            setTimeout(function(){
-                wow.style.bottom = "150px";
-                wow.style.opacity = "1";
-            },50);
-            setTimeout(function(){
-                wow.style.transition = "0.5s";
-                wow.style.opacity = "0";
-                wow.style.bottom = "100%";
-                setTimeout(function(){
-                    viewGame.removeChild(wow);
-                }, 1000);
-            }, 1100);
-        };
-        action();
-    };
+}
 
+function animationLevelUp(){
+    this.checkLevelUp = 0;
+    this.imgLevelUp;
+    this.widthImgLevelUp = 300;
+    this.heightImgLevelUp  = 100;
+    this.createImgLevelUp = function(){
+        this.imgLevelUp = document.createElement("img");
+        this.imgLevelUp.src = "levelup.png";
+        this.imgLevelUp.style.position = "absolute";
+        this.imgLevelUp.style.width = this.widthImgLevelUp  + "px";
+        this.imgLevelUp.style.height = this.heightImgLevelUp  + "px";
+        this.imgLevelUp.style.left = "25%";
+        this.imgLevelUp.style.bottom = -this.heightImgLevelUp + "px";
+        this.imgLevelUp.style.transition = "1s";
+        this.imgLevelUp.style.opacity = "0";
+        viewGame.appendChild(this.imgLevelUp);
+    };
+    this.runAnimationLevelUp = function(){
+        this.createImgLevelUp();
+        setTimeout(()=>{
+            this.imgLevelUp.style.bottom = "150px";
+            this.imgLevelUp.style.opacity = "1";
+        },50);
+        setTimeout(()=>{
+            this.imgLevelUp.style.transition = "0.5s";
+            this.imgLevelUp.style.opacity = "0";
+            this.imgLevelUp.style.bottom = "100%";
+            setTimeout(function(){
+                viewGame.removeChild(this.imgLevelUp);
+            }, 1000);
+        }, 1100);
+    };
+}
+
+function level() {
     this.changeLevel = function(maxHeight, aX, y, secondsAnimation){
-        if(this.checkWow == 0){
+        if(this.checkLevelUp == 0){
             var audio = new Audio("levelUp-Mp3.mp3");
             audio.play();
-            ++this.checkWow;
-            this.animationWow();
+            ++this.checkLevelUp;
+            this.runAnimationLevelUp();
             setTimeout(()=>{
-                this.checkWow = 0;
+                this.checkLevelUp = 0;
             }, 1000);
         }
         this.arrayobjHinder.forEach((value)=>{
@@ -250,7 +249,7 @@ function game() {
 
     this.updateLevel = function(){
         switch(valueScoreNow){
-            case 150:
+            case 50:
                 this.changeLevel(4, 5, 112, 0.8);
             break;
             case 250:
@@ -270,6 +269,12 @@ function game() {
             break;
         }
     }
+}
+level.prototype = new animationLevelUp();
+
+function game() {
+    this.objwheel;
+    this.arrayobjHinder = [];
 
     this.playGame = function(){
         var wellcome = document.getElementsByClassName("wellcome")[0];
@@ -298,6 +303,7 @@ function game() {
                 }
             },17);
             this.checkScore();
+            console.log(this);
         }
     }
 
@@ -320,6 +326,8 @@ function game() {
         };
     }
 }
+score.prototype = new level();
+game.prototype = new score();
 
 var newGame = new game();
 newGame.playGame();
