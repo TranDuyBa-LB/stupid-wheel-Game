@@ -2,6 +2,9 @@
     margin: 0px;
     padding: 0px;
 }
+input {
+    -webkit-appearance: none;
+}
 @font-face {
     font-family: Baloo Regular;
     src: url("../font/Baloo-Regular.ttf");
